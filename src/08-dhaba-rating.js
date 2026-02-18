@@ -45,17 +45,57 @@
  *   // => [{ rating: 5 }, { rating: 3 }]
  */
 export function createFilter(field, operator, value) {
-  // Your code here
+    let operators = [">", "<", ">=", "<=", "==="];
+
+    if (!operators.includes(operator)) return () => false;
+
+    return (obj) => {
+        if (operator === ">") {
+            return obj[field] > value;
+        } else if (operator === "<") {
+            return obj[field] < value;
+        } else if (operator === ">=") {
+            return obj[field] >= value;
+        } else if (operator === "<=") {
+            return obj[field] <= value;
+        } else if (operator === "===") {
+            return obj[field] === value;
+        }
+    };
 }
 
 export function createSorter(field, order = "asc") {
-  // Your code here
+    return (a, b) => {
+        let valA = a[field];
+        let valB = b[field];
+
+        if (typeof valA === "number" && typeof valB === "number") {
+            return order === "asc" ? valA - valB : valB - valA;
+        }
+
+        valA = String(valA);
+        valB = String(valB);
+
+        return order === "asc"
+            ? valA.localeCompare(valB)
+            : valB.localeCompare(valA);
+    };
 }
 
 export function createMapper(fields) {
-  // Your code here
+    return (obj) => {
+        return Object.fromEntries(
+            Object.entries(obj).filter(([key, val]) => fields.includes(key)),
+        );
+    };
 }
 
 export function applyOperations(data, ...operations) {
-  // Your code here
+    if (!Array.isArray(data) || data.length === 0) return [];
+
+    for (let operation of operations) {
+        data = operation(data);
+    }
+
+    return data;
 }
